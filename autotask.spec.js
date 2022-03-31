@@ -1,6 +1,16 @@
 const ethers = require('ethers');
 const axios = require('axios');
+
+// grab the existing keys before loading new content from the .env file
+const existingKeys = Object.keys(process.env);
 require('dotenv').config();
+
+// now filter out all of the existing keys from what is currently in the process.env Object
+const newKeys = Object.keys(process.env).filter((key) => existingKeys.indexOf(key) === -1);
+const secrets = {};
+newKeys.forEach((key) => {
+  secrets[key] = process.env[key];
+});
 
 const config = require('./development-config.json');
 
@@ -13,9 +23,6 @@ jest.mock('defender-relay-client/lib/ethers', () => ({
 }));
 
 const { handler } = require('./autotask');
-
-// extract everything from the .env file and place it into the secrets object
-const secrets = { ...process.env };
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
 
