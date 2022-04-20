@@ -425,42 +425,44 @@ const cTokenSymbol = 'AAVE'
 
 const mockFortaAlert = {
   data: {
-    alerts: {
-      pageInfo: {
-        hasNextPage: false,
-        endCursor: {
-          alertId: 'AE-COMP-CTOKEN-ASSET-UPGRADED',
-          blockNumber: 0
-        }
-      },
-      alerts: [
-        {
-          createdAt: '2022-03-31T22:02:20.812799122Z',
-          name: 'Compound cToken Asset Upgraded',
-          protocol: 'Compound',
-          findingType: 'INFORMATION',
-          // "hash": "0xcee8d4bd1c065260acdcfa51c955fc29c984145de2769b685f29701b6edf318f",
-          source: {
-            transactionHash: '0xaaec8f4fcb423b5190b8d78b9595376ca34aee8a50c7e3250b3a9e79688b734b',
-            block: {
-              number: 14496506,
-              chainId: 1
+    data: {
+      alerts: {
+        pageInfo: {
+          hasNextPage: false,
+          endCursor: {
+            alertId: 'AE-COMP-CTOKEN-ASSET-UPGRADED',
+            blockNumber: 0
+          }
+        },
+        alerts: [
+          {
+            createdAt: '2022-03-31T22:02:20.812799122Z',
+            name: 'Compound cToken Asset Upgraded',
+            protocol: 'Compound',
+            findingType: 'INFORMATION',
+            // "hash": "0xcee8d4bd1c065260acdcfa51c955fc29c984145de2769b685f29701b6edf318f",
+            source: {
+              transactionHash: '0xaaec8f4fcb423b5190b8d78b9595376ca34aee8a50c7e3250b3a9e79688b734b',
+              block: {
+                number: 14496506,
+                chainId: 1
+              },
+              agent: {
+                id: '0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576'
+              }
             },
-            agent: {
-              id: '0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576'
-            }
-          },
-          severity: 'INFO',
-          metadata: {
-            cTokenSymbol: 'AAVE',
-            cTokenAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF9', // fill this in
-            underlyingAssetAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF6' // fill this in
-          },
-          description: `The underlying asset for the ${cTokenSymbol} cToken contract was upgraded`
-        }
-      ]
+            severity: 'INFO',
+            metadata: {
+              cTokenSymbol: 'AAVE',
+              cTokenAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF9', // fill this in
+              underlyingAssetAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF6' // fill this in
+            },
+            description: `The underlying asset for the ${cTokenSymbol} cToken contract was upgraded`
+          }
+        ]
+      }
     }
-  }
+  },
 };
   
 // create a provider that will be injected as the Defender Relayer provider
@@ -469,16 +471,15 @@ jest.mock('defender-relay-client/lib/ethers', () => ({
   DefenderRelayProvider: jest.fn().mockReturnValue(mockProvider),
 }));
 
-const axios = require('axios');
-
-jest.mock('axios', () => {
-  post: jest.fn().mockResolvedValue(mockFortaAlert.data.alerts.alerts)
-})
+jest.mock('axios', () => ({
+  ...jest.requireActual('axios'),
+  post: jest.fn().mockResolvedValueOnce(mockFortaAlert)
+}))
 
 const { handler } = require('./autotask');
 
 const getFortaAlerts = jest.fn();
-getFortaAlerts.mockResolvedValue(mockFortaAlert.data.alerts.alerts);
+getFortaAlerts.mockResolvedValue(mockFortaAlert.data.data.alerts.alerts);
 
 async function createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumber) {
   const alerts = await getFortaAlerts(agentId, startBlockNumber, endBlockNumber);

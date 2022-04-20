@@ -6,11 +6,11 @@ const axios = require('axios');
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
 
 // axios post request for forta graphql api
-async function post(url, method, headers, data) {
-  return axios({
-    url, method, headers, data,
-  });
-}
+// async function post(url, method, headers, data) {
+//   return axios({
+//     url, method, headers, data,
+//   });
+// }
 
 function createDiscordMessage(cTokenSymbol, transactionHash) {
   // // construct the Etherscan transaction link
@@ -30,8 +30,11 @@ async function postToDiscord(url, message) {
   let response;
   try {
     // perform the POST request
-    response = await post(url, method, headers, data);
+    console.log("discord sucess")
+    response = await axios.post(url, { content: message }, headers);
+    console.log("discord response here", response)
   } catch (error) {
+    console.log("discord fail")
     // is this a "too many requests" error (HTTP status 429)
     if (error.response && error.response.status === 429) {
       // the request was made and a response was received
@@ -39,7 +42,7 @@ async function postToDiscord(url, message) {
       // eslint-disable-next-line no-promise-executor-return
       const promise = new Promise((resolve) => setTimeout(resolve, 5000));
       await promise;
-      response = await post(url, method, headers, data);
+      response = await axios.post(url, { content: message }, headers);
     } else {
       // re-throw the error if it's not from a 429 status
       throw error;
@@ -100,17 +103,19 @@ async function getFortaAlerts(agentId, transactionHash) {
   };
 
   // perform the POST request
-  const response = await axios({
-    url: fortaApiEndpoint,
-    method: 'post',
+  const response = await axios.post(
+    fortaApiEndpoint,
+    graphqlQuery,
     headers,
-    data: graphqlQuery,
-  });
+  );
+  console.log("response here", response)
+  console.log("alerts here", response.data)
 
   const { data } = response;
   if (data === undefined) {
     return undefined;
   }
+
 
   console.log('Forta Public API data');
   console.log(JSON.stringify(data, null, 2));
@@ -172,9 +177,33 @@ exports.handler = async function (autotaskEvent) {
 
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
-  console.log("look for alerts here", alerts)
   alerts = alerts.filter((alertObject) => alertObject.hash === hash);
   console.log(JSON.stringify(alerts, null, 2));
+  alerts = [
+    {
+      createdAt: '2022-03-31T22:02:20.812799122Z',
+      name: 'Compound cToken Asset Upgraded',
+      protocol: 'Compound',
+      findingType: 'INFORMATION',
+      source: {
+        transactionHash: '0xaaec8f4fcb423b5190b8d78b9595376ca34aee8a50c7e3250b3a9e79688b734b',
+        block: [Object],
+        agent: [Object],
+        tx_hash: '0xaaec8f4fcb423b5190b8d78b9595376ca34aee8a50c7e3250b3a9e79688b734b'
+      },
+      severity: 'INFO',
+      metadata: {
+        cTokenSymbol: 'AAVE',
+        cTokenAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF9',
+        underlyingAssetAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF6'
+      },
+      description: 'The underlying asset for the AAVE cToken contract was upgraded',
+      alertType: 'TX',
+      alert_id: 'ALERT_ID_PLACEHOLDER',
+      type: 'INFORMATION',
+      scanner_count: 1
+    }
+  ]
 
   const promises = alerts.map((alertData) => {
     const { metadata } = alertData;
@@ -188,8 +217,10 @@ exports.handler = async function (autotaskEvent) {
 
   // // wait for the promises to settle
   const messages = await Promise.all(promises);
+  console.log("messages here", messages)
 
   // // create promises for posting messages to Discord webhook
+  console.log("posting to discord...")
   const discordPromises = messages.map((message) => postToDiscord(discordUrl, `${message}`));
 
   // // wait for the promises to settle
