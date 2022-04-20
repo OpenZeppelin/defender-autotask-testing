@@ -471,10 +471,16 @@ jest.mock('defender-relay-client/lib/ethers', () => ({
   DefenderRelayProvider: jest.fn().mockReturnValue(mockProvider),
 }));
 
+var mockResolvedValue = jest.fn();
+
+const axiosReal = require('axios')
+
 jest.mock('axios', () => ({
   ...jest.requireActual('axios'),
-  post: jest.fn().mockResolvedValueOnce(mockFortaAlert)
-}))
+  post: jest.fn().mockResolvedValueOnce(mockFortaAlert),
+}));
+
+mockResolvedValue.mockReturnValueOnce((...args) => axiosReal.post(...args));
 
 const { handler } = require('./autotask');
 
