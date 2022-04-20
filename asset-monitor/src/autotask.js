@@ -4,8 +4,7 @@
 const axios = require('axios');
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 function createDiscordMessage(cTokenSymbol, transactionHash) {
   // // construct the Etherscan transaction link
@@ -190,33 +189,3 @@ exports.handler = async function (autotaskEvent) {
 
   return {};
 };
-
-/*
-{
-      name: 'Compound cToken Asset Upgraded',
-      description: 'The underlying asset for the TEST cToken contract was upgraded',
-      alertId: 'AE-COMP-CTOKEN-ASSET-UPGRADED',
-      protocol: 'Compound',
-      severity: 1,
-      type: 4,
-      metadata: {
-        cTokenSymbol: 'TEST',
-        cTokenAddress: '0x1234',
-        underlyingAssetAddress: '0x5678',
-        eventArgs_implementation: '0x8888'
-      }
-    }
-
-      name: `${protocolName} cToken Asset Upgraded`,
-      description: `The underlying asset for the ${cTokenSymbol} cToken contract was upgraded`,
-      alertId: `${developerAbbreviation}-${protocolAbbreviation}-CTOKEN-ASSET-UPGRADED`,
-      type: FindingType[findingType],
-      severity: FindingSeverity[findingSeverity],
-      protocol: protocolName,
-      metadata: {
-        cTokenSymbol,
-        cTokenAddress,
-        underlyingAssetAddress,
-        ...modifiedArgs
-      }
-*/
