@@ -1,34 +1,18 @@
-// DISTRIBUTIONS AGENT ALERT
-// agent id - 0xfca83adc900f88f22dafcd91117d0929343cba3f18e4607bcd861ff0bcd706fa
-
-const BigNumber = require('bignumber.js');
+// LARGE BORROWS GOVERNANCE AGENT ALERT - note there's never been an alert to this agent yet
+// agent id - 0x704a35d97dfae2caf3b409206f1bc4c8a06671170108d07f9b3c7ea5026916fc
 
 const axios = require('axios');
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
+const needle = require('needle')
 
-// axios post request for forta graphql api
-async function post(url, method, headers, data) {
-  return axios({
-    url, method, headers, data,
-  });
-}
-
-function createDiscordMessage(compAccrued, compDistributed, receiver, transactionHash) {
-  const receiverFormatted = receiver.slice(0, 6);
+function createDiscordMessage(borrowerAddress, governanceEvent, transactionHash) {
+  const borrowerFormatted = borrowerAddress.slice(0, 6);
 
   // // construct the Etherscan transaction link
   const etherscanLink = `[TX](<https://etherscan.io/tx/${transactionHash}>)`;
 
-  // handle case for infinity % (no comp accrued before)
-  if (compAccrued.equal(0) || compDistributed.equal(0)) {
-    return `${etherscanLink} 🌊 **${receiverFormatted}%** previously had no COMP accrued and was just distributed COMP tokens`;
-  }
-
-  // % disctribution % is calculated by compDistributed / compAccrued * 100
-  const percentageMore = compDistributed.div(compAccrued).times(100).tosString();
-
-  return `${etherscanLink} 🌊 **${percentageMore}%** more COMP distributed to **${receiverFormatted}** than expected`;
+  return `${etherscanLink} 💸 **${borrowerFormatted}** has enough COMP tokens to pass min threshold for governance event **${governanceEvent}**`;
 }
 
 // post to discord
@@ -42,7 +26,7 @@ async function postToDiscord(url, message) {
   let response;
   try {
     // perform the POST request
-    response = await post(url, method, headers, data);
+    response = needle.post(url, {content: message}, {json: true} )
   } catch (error) {
     // is this a "too many requests" error (HTTP status 429)
     if (error.response && error.response.status === 429) {
@@ -51,7 +35,7 @@ async function postToDiscord(url, message) {
       // eslint-disable-next-line no-promise-executor-return
       const promise = new Promise((resolve) => setTimeout(resolve, 5000));
       await promise;
-      response = await post(url, method, headers, data);
+      response = needle.post(url, {content: message}, {json: true} )
     } else {
       // re-throw the error if it's not from a 429 status
       throw error;
@@ -112,12 +96,11 @@ async function getFortaAlerts(agentId, transactionHash) {
   };
 
   // perform the POST request
-  const response = await axios({
-    url: fortaApiEndpoint,
-    method: 'post',
+  const response = await axios.post(
+    fortaApiEndpoint,
+    graphqlQuery,
     headers,
-    data: graphqlQuery,
-  });
+  );
 
   const { data } = response;
   if (data === undefined) {
@@ -185,20 +168,16 @@ exports.handler = async function (autotaskEvent) {
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
   alerts = alerts.filter((alertObject) => alertObject.hash === hash);
-  console.log('Alerts here', alerts);
+  console.log('alerts');
   console.log(JSON.stringify(alerts, null, 2));
 
   const promises = alerts.map((alertData) => {
     const { metadata } = alertData;
-    let { compAccrued, compDistributed } = metadata;
-    const { receiver } = metadata;
-    compAccrued = new BigNumber(compAccrued);
-    compDistributed = new BigNumber(compDistributed);
+    const { borrowerAddress, governanceLevel: governanceEvent } = metadata;
 
     return createDiscordMessage(
-      compAccrued,
-      compDistributed,
-      receiver,
+      borrowerAddress,
+      governanceEvent,
       transactionHash,
     );
   });
@@ -214,30 +193,3 @@ exports.handler = async function (autotaskEvent) {
 
   return {};
 };
-
-/* this is what the alerts look like
-{
-              "createdAt": "2022-03-31T22:02:20.896030912Z",
-              "name": "Compound Distribution Event",
-              "protocol": "Compound",
-              "findingType": "SUSPICIOUS",
-              "hash": "0x4f3d54010dfb0ca0d78d3c01c45daaaeafc4d68298d98fbe995f4baa2f8996ae",
-              "source": {
-                "transactionHash": "0x4ba3bfee3221bf246bfa34bb6ef107a922896cb7d97b50e40793288113468e21",
-                "block": {
-                  "number": 14496506,
-                  "chainId": 1
-                },
-                "agent": {
-                  "id": "0xfca83adc900f88f22dafcd91117d0929343cba3f18e4607bcd861ff0bcd706fa"
-                }
-              },
-              "severity": "HIGH",
-              "metadata": {
-                "compAccrued": "0",
-                "compDistributed": "4989396791922",
-                "receiver": "0x8F077BbA8221Edd9faaaE96668F17b47F1Cb9e5d"
-              },
-              "description": "Distributed Infinity% more COMP to 0x8F077BbA8221Edd9faaaE96668F17b47F1Cb9e5d than expected"
-            },
-*/

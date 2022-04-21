@@ -215,7 +215,7 @@ exports.handler = async function (autotaskEvent) {
   const discordPromises = messages.map((message) => postToDiscord(discordUrl, `${message}`));
 
   // // wait for the promises to settle
-  await Promise.all(discordPromises);
+  console.log("promises here", await Promise.all(discordPromises));
 
   return {};
 };

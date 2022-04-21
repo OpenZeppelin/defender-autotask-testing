@@ -4,7 +4,7 @@
 const axios = require('axios');
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const needle = require('needle')
 
 function createDiscordMessage(cTokenSymbol, transactionHash) {
   // // construct the Etherscan transaction link
@@ -24,7 +24,7 @@ async function postToDiscord(url, message) {
   let response;
   try {
     // perform the POST request
-    response = await fetch(url, { method, headers, body: data });
+    response = needle.post(url, {content: message}, {json: true} )
   } catch (error) {
     // is this a "too many requests" error (HTTP status 429)
     if (error.response && error.response.status === 429) {
@@ -33,7 +33,7 @@ async function postToDiscord(url, message) {
       // eslint-disable-next-line no-promise-executor-return
       const promise = new Promise((resolve) => setTimeout(resolve, 5000));
       await promise;
-      response = await axios.post(url, { content: message }, headers);
+      response = needle.post(url, {content: message}, {json: true} )
     } else {
       // re-throw the error if it's not from a 429 status
       throw error;
@@ -166,6 +166,7 @@ exports.handler = async function (autotaskEvent) {
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
   alerts = alerts.filter((alertObject) => alertObject.hash === hash);
+  console.log("alerts");
   console.log(JSON.stringify(alerts, null, 2));
 
   const promises = alerts.map((alertData) => {

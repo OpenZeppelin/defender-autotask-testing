@@ -49,9 +49,10 @@ const mockFortaAlert = {
             },
             severity: 'INFO',
             metadata: {
-              cTokenSymbol: 'AAVE',
-              cTokenAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF9', // fill this in
-              underlyingAssetAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF6' // fill this in
+              borrowerAddress: '0xF56df8FEbc5dB60433516539F50231FF7242AC87',
+              governanceLevel: '2',
+              minCOMPNeeded: '10',
+              currCOMPOwned: "100"
             },
             description: `The underlying asset for the ${cTokenSymbol} cToken contract was upgraded`
           },

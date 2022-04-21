@@ -1,5 +1,6 @@
 const axios = require('axios');
 const ethers = require('ethers');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
 
@@ -53,12 +54,11 @@ async function getFortaAlerts(agentId, transactionHash) {
   };
 
   // perform the POST request
-  const response = await axios({
-    url: fortaApiEndpoint,
-    method: 'post',
+  const response = await axios.post(
+    fortaApiEndpoint,
+    graphqlQuery,
     headers,
-    data: graphqlQuery,
-  });
+  );
 
   const { data } = response;
   if (data === undefined) {
@@ -71,13 +71,6 @@ async function getFortaAlerts(agentId, transactionHash) {
   return alerts;
 }
 
-// axios post request for forta graphql api
-async function post(url, method, headers, data) {
-  return axios({
-    url, method, headers, data,
-  });
-}
-
 async function postToDiscord(url, message) {
   const method = 'post';
   const headers = {
@@ -88,7 +81,7 @@ async function postToDiscord(url, message) {
   let response;
   try {
     // perform the POST request
-    response = await post(url, method, headers, data);
+    response = await fetch(url, {method: "POST", headers: headers, body: data});
   } catch (error) {
     // is this a "too many requests" error (HTTP status 429)
     if (error.response && error.response.status === 429) {
@@ -97,7 +90,7 @@ async function postToDiscord(url, message) {
       // eslint-disable-next-line no-promise-executor-return
       const promise = new Promise((resolve) => setTimeout(resolve, 5000));
       await promise;
-      response = await post(url, method, headers, data);
+      response = await axios.post(url, headers, data);
     } else {
       // re-throw the error if it's not from a 429 status
       throw error;
@@ -108,9 +101,9 @@ async function postToDiscord(url, message) {
 }
 
 async function main() {
-  let alerts = getFortaAlerts("0xfca83adc900f88f22dafcd91117d0929343cba3f18e4607bcd861ff0bcd706fa", "0xb28081d9792a1ddbed59632e4b77f1130b100d17d8bf0056756321aaca1a206d")
-  console.log("look here for alerts", alerts)
-  // await postToDiscord("https://discord.com/api/webhooks/963891500897423360/Zx8MzPcEfFPDoqpOjGXoBu3303FPvj0NAX4pHUsOll3G5N2TlaThiQUOUDfyQm0tWhiP", "this should show up in discord")
+  // let alerts = getFortaAlerts("0xfca83adc900f88f22dafcd91117d0929343cba3f18e4607bcd861ff0bcd706fa", "0xb28081d9792a1ddbed59632e4b77f1130b100d17d8bf0056756321aaca1a206d")
+  // console.log("look here for alerts", alerts)
+  await postToDiscord("https://discord.com/api/webhooks/963891500897423360/Zx8MzPcEfFPDoqpOjGXoBu3303FPvj0NAX4pHUsOll3G5N2TlaThiQUOUDfyQm0tWhiP", "this should show up in discord")
 }
 
 main()

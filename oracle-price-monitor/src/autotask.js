@@ -3,7 +3,7 @@
 
 const axios = require('axios');
 const ethers = require('ethers');
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const needle = require('needle');
 
 // import the DefenderRelayProvider to interact with its JSON-RPC endpoint
 const { DefenderRelayProvider } = require('defender-relay-client/lib/ethers');
@@ -103,26 +103,23 @@ async function postToDiscord(url, message) {
   };
   const data = JSON.stringify({ content: message });
 
+  console.log("data here", data)
+
   let response;
   try {
     // perform the POST request
-    console.log("posting to discord...")
-    response = await fetch(url, {method: "POST", headers: headers, body: {content: "hi"}});
-    // response = await fetch(url, { method, headers, body: data });
-    console.log("discord repsonse here", response)
+    response = needle.post(url, {content: message}, {json: true} )
   } catch (error) {
     // is this a "too many requests" error (HTTP status 429)
-    console.log("trying to post to discord again")
     if (error.response && error.response.status === 429) {
       // the request was made and a response was received
       // try again after waiting 5 seconds
       // eslint-disable-next-line no-promise-executor-return
       const promise = new Promise((resolve) => setTimeout(resolve, 5000));
       await promise;
-      response = await fetch(url, { method, headers, body: data });
+      response = needle.post(url, {content: message}, {json: true} )
     } else {
       // re-throw the error if it's not from a 429 status
-      console.log("error posting to discord")
       throw error;
     }
   }
@@ -251,7 +248,7 @@ exports.handler = async function (autotaskEvent) {
 
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
-  alerts = alerts.filter((alertObject) => alertObject.hash === hash);
+  // alerts = alerts.filter((alertObject) => alertObject.hash === hash);
   console.log('Alerts here', alerts);
   console.log(JSON.stringify(alerts, null, 2));
 
