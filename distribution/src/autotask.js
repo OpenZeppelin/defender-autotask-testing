@@ -99,8 +99,8 @@ async function getFortaAlerts(agentId, transactionHash) {
             }
           }
           severity
-		  metadata
-		  description
+      metadata
+      description
         }
       }
     }`,
@@ -189,8 +189,7 @@ exports.handler = async function (autotaskEvent) {
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
   alerts = alerts.filter((alertObject) => alertObject.hash === hash);
-  console.log("hits here")
-  console.log('Alerts here', alerts);
+  console.log('Alerts');
   console.log(JSON.stringify(alerts, null, 2));
 
   const promises = alerts.map((alertData) => {
@@ -215,34 +214,7 @@ exports.handler = async function (autotaskEvent) {
   const discordPromises = messages.map((message) => postToDiscord(discordUrl, `${message}`));
 
   // // wait for the promises to settle
-  console.log("promises here", await Promise.all(discordPromises));
+  await Promise.all(discordPromises);
 
   return {};
 };
-
-/* this is what the alerts look like
-{
-              "createdAt": "2022-03-31T22:02:20.896030912Z",
-              "name": "Compound Distribution Event",
-              "protocol": "Compound",
-              "findingType": "SUSPICIOUS",
-              "hash": "0x4f3d54010dfb0ca0d78d3c01c45daaaeafc4d68298d98fbe995f4baa2f8996ae",
-              "source": {
-                "transactionHash": "0x4ba3bfee3221bf246bfa34bb6ef107a922896cb7d97b50e40793288113468e21",
-                "block": {
-                  "number": 14496506,
-                  "chainId": 1
-                },
-                "agent": {
-                  "id": "0xfca83adc900f88f22dafcd91117d0929343cba3f18e4607bcd861ff0bcd706fa"
-                }
-              },
-              "severity": "HIGH",
-              "metadata": {
-                "compAccrued": "0",
-                "compDistributed": "4989396791922",
-                "receiver": "0x8F077BbA8221Edd9faaaE96668F17b47F1Cb9e5d"
-              },
-              "description": "Distributed Infinity% more COMP to 0x8F077BbA8221Edd9faaaE96668F17b47F1Cb9e5d than expected"
-            },
-*/

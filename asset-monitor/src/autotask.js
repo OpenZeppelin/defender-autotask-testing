@@ -2,9 +2,9 @@
 // agent id - 0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576
 
 const axios = require('axios');
+const needle = require('needle');
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
-const needle = require('needle')
 
 function createDiscordMessage(cTokenSymbol, transactionHash) {
   // // construct the Etherscan transaction link
@@ -15,16 +15,10 @@ function createDiscordMessage(cTokenSymbol, transactionHash) {
 
 // post to discord
 async function postToDiscord(url, message) {
-  const method = 'post';
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  const data = JSON.stringify({ content: message });
-
   let response;
   try {
     // perform the POST request
-    response = needle.post(url, {content: message}, {json: true} )
+    response = needle.post(url, { content: message }, { json: true });
   } catch (error) {
     // is this a "too many requests" error (HTTP status 429)
     if (error.response && error.response.status === 429) {
@@ -33,7 +27,7 @@ async function postToDiscord(url, message) {
       // eslint-disable-next-line no-promise-executor-return
       const promise = new Promise((resolve) => setTimeout(resolve, 5000));
       await promise;
-      response = needle.post(url, {content: message}, {json: true} )
+      response = needle.post(url, { content: message }, { json: true });
     } else {
       // re-throw the error if it's not from a 429 status
       throw error;
@@ -77,8 +71,8 @@ async function getFortaAlerts(agentId, transactionHash) {
             }
           }
           severity
-		  metadata
-		  description
+      metadata
+      description
         }
       }
     }`,
@@ -166,7 +160,7 @@ exports.handler = async function (autotaskEvent) {
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
   alerts = alerts.filter((alertObject) => alertObject.hash === hash);
-  console.log("alerts");
+  console.log('Alerts');
   console.log(JSON.stringify(alerts, null, 2));
 
   const promises = alerts.map((alertData) => {

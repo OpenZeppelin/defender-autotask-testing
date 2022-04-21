@@ -1,6 +1,5 @@
-const ethers = require('ethers');
-
 // DEFENDER FORTA SENTINEL AUTOTASK TESTING //
+const ethers = require('ethers');
 
 // grab the existing keys before loading new content from the .env file
 const existingKeys = Object.keys(process.env);
@@ -36,7 +35,7 @@ const mockFortaAlert = {
             name: 'Compound cToken Asset Upgraded',
             protocol: 'Compound',
             findingType: 'INFORMATION',
-            // "hash": "0xcee8d4bd1c065260acdcfa51c955fc29c984145de2769b685f29701b6edf318f",
+            hash: '0xcee8d4bd1c065260acdcfa51c955fc29c984145de2769b685f29701b6edf318f',
             source: {
               transactionHash: '0xaaec8f4fcb423b5190b8d78b9595376ca34aee8a50c7e3250b3a9e79688b734b',
               block: {
@@ -44,23 +43,23 @@ const mockFortaAlert = {
                 chainId: 1,
               },
               agent: {
-                id: '0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576'
+                id: '0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576',
               },
             },
             severity: 'INFO',
             metadata: {
               cTokenSymbol: 'AAVE',
-              cTokenAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF9', // fill this in
-              underlyingAssetAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF6' // fill this in
+              cTokenAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF9',
+              underlyingAssetAddress: '0xAC6A6388691F564Cb69e4082E2bd4e347A978bF6',
             },
-            description: `The underlying asset for the ${cTokenSymbol} cToken contract was upgraded`
+            description: `The underlying asset for the ${cTokenSymbol} cToken contract was upgraded`,
           },
         ],
       },
     },
   },
 };
-  
+
 // create a provider that will be injected as the Defender Relayer provider
 const mockProvider = new ethers.providers.JsonRpcBatchProvider(jsonRpcUrl);
 jest.mock('defender-relay-client/lib/ethers', () => ({
@@ -139,11 +138,6 @@ async function createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumb
 
   return autotaskEvents;
 }
-
-it ('get forta alerts', async() => {
-  let alerts = await getFortaAlerts('0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576', 14517164, 14569190)
-  console.log('test forta alerts return value', alerts)
-})
 
 it('Runs autotask against blocks in configuration file', async () => {
   // get the development configuration values

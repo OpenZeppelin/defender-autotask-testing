@@ -168,7 +168,7 @@ exports.handler = async function (autotaskEvent) {
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
   alerts = alerts.filter((alertObject) => alertObject.hash === hash);
-  console.log('alerts');
+  console.log('Alerts');
   console.log(JSON.stringify(alerts, null, 2));
 
   const promises = alerts.map((alertData) => {

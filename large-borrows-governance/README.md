@@ -18,9 +18,6 @@ to pass significant governance thresholds. This can be an early indication of go
     - The minimum amount of COMP needed to pass the respective governance threshold
     - The amount of COMP owned by the borrower address
 
-## Testing
+## Autotask
 
-Run unit tests:
-```
-npm test
-```
+This autotask will send alerts to the compound discord channel when the agent produces a finding.

@@ -18,14 +18,6 @@ a ValidatorProxy reported a cToken price that is outside of the Uniswap V2 TWAP 
     - Anchor Price (current price)
     - Reporter Price (failed price)
 
-## Testing
+## Autotask
 
-Running against a real transaction:
-```
-npx forta-agent run --tx 0xe9456ccee1b1764dfe80291f3b894a29f0789f20f995de7d88ff186e8cafe55c
-```
-
-Run unit tests:
-```
-npm test
-```
+This autotask will send alerts to the compound discord channel when the agent produces a finding.

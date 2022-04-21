@@ -20,9 +20,6 @@ a cToken's underlying asset may have changed.
     - underlyingAssetAddress
     - Arguments passed with event (e.g. for new implementation address)
 
-## Testing
+## Autotask
 
-- AAVE - 0xb505725d0d622207af8ad6bfbd2f9a5031795fe62de9163d54173fbfbbe655e4
-- TUSD - 0x125823f2914e4f14e06b9b1b30fe9dd9512b36354cc1f6c063118c4fe03d8287
-- USDP - 0xeea8b8f0f0b7125bda2f78ee2f62eb031418be78e09a2fae892eb58f13837ceb
-- USDC - 0xe2e40640ffd5f76538cd23660cf56f00bfebd5fe925ebad6b8067c4cee18a2c3
+This autotask will send alerts to the compound discord channel when the agent produces a finding.

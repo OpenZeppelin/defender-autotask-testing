@@ -82,9 +82,6 @@ function formatAmountString(amount, decimals) {
 async function createDiscordMessage(reporterPrice, cTokenAddress, transactionHash, provider) {
   const { decimals, symbol } = await getDecimalsAndSymbol(cTokenAddress, provider);
 
-  console.log("decimals here", decimals)
-  console.log("symbol here", symbol)
-
   const amountString = formatAmountString(reporterPrice, decimals);
 
   console.log("amount string here", amountString)
@@ -97,14 +94,6 @@ async function createDiscordMessage(reporterPrice, cTokenAddress, transactionHas
 
 // post to discord
 async function postToDiscord(url, message) {
-  const method = 'post';
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  const data = JSON.stringify({ content: message });
-
-  console.log("data here", data)
-
   let response;
   try {
     // perform the POST request
@@ -249,7 +238,7 @@ exports.handler = async function (autotaskEvent) {
   // retrieve the metadata from the Forta public API
   let alerts = await getFortaAlerts(agentId, transactionHash);
   // alerts = alerts.filter((alertObject) => alertObject.hash === hash);
-  console.log('Alerts here', alerts);
+  console.log('Alerts')
   console.log(JSON.stringify(alerts, null, 2));
 
   // use the relayer provider for JSON-RPC requests
@@ -266,19 +255,16 @@ exports.handler = async function (autotaskEvent) {
       provider,
     );
   });
-  console.log("hits here in code 2")
-  console.log("promises here", await Promise.all(promises))
 
   // wait for the promises to settle
   const messages = await Promise.all(promises);
-  console.log("messages here", messages)
 
   // create promises for posting messages to Discord webhook
   const discordPromises = messages.map((message) => postToDiscord(discordUrl, `${message}`));
 
 
   // wait for the promises to settle
-  console.log("discord status here", await Promise.all(discordPromises));
+  await Promise.all(discordPromises);
 
   return {};
 };

@@ -26,17 +26,17 @@ const mockFortaAlert = {
         pageInfo: {
           hasNextPage: false,
           endCursor: {
-            alertId: 'AE-COMP-CTOKEN-ASSET-UPGRADED',
+            alertId: 'AE-COMP-CTOKEN-PRICE-REJECTED',
             blockNumber: 0,
           },
         },
         alerts: [
           {
             createdAt: '2022-03-31T22:02:20.812799122Z',
-            name: 'Compound cToken Asset Upgraded',
+            name: 'Compound Oracle Price Monitor',
             protocol: 'Compound',
-            findingType: 'INFORMATION',
-            // "hash": "0xcee8d4bd1c065260acdcfa51c955fc29c984145de2769b685f29701b6edf318f",
+            findingType: 'DEGRADED',
+            hash: '0xcee8d4bd1c065260acdcfa51c955fc29c984145de2769b685f29701b6edf318f',
             source: {
               transactionHash: '0xaaec8f4fcb423b5190b8d78b9595376ca34aee8a50c7e3250b3a9e79688b734b',
               block: {
@@ -47,7 +47,7 @@ const mockFortaAlert = {
                 id: '0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576'
               },
             },
-            severity: 'INFO',
+            severity: 'High',
             metadata: {
               reporterPrice: '100000000000000000000',
               cTokenAddress: '0xe65cdB6479BaC1e22340E4E755fAE7E509EcD06c', // this is the ctoken address for AAVE
@@ -138,11 +138,6 @@ async function createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumb
 
   return autotaskEvents;
 }
-
-it ('get forta alerts', async() => {
-  let alerts = await getFortaAlerts('0x3f02bee8b17edc945c5c1438015aede79225ac69c46e9cd6cff679bb71f35576', 14517164, 14569190)
-  console.log('test forta alerts return value', alerts)
-})
 
 it('Runs autotask against blocks in configuration file', async () => {
   // get the development configuration values
