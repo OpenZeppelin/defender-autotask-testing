@@ -31,6 +31,8 @@ The use of `describe` and `it` is currently only necessary because we are using 
 ```
 - Create a .env file that contains the name of your discord webook and the url for it:
   - ex.) `FortaSentinelTestingDiscord = "discord webhook url"`
+- The `cToken-monitor` and `governance` autotasks both have previous alerts, so the autotask event data can be fed through the handler by running the `autotask.spec.js` file. You can rename either of these files to `autotask.js` and run `npm test` to test it out.
+- For the `asset-monitor`, `large-borrows-governance` and `oracle-price-monitor` autotasks, these agents have not picked up on any previous findings and the alert to discord channels are invoked by passing in mock data.
 
 ## Running
 

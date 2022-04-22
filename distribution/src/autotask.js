@@ -22,7 +22,7 @@ function createDiscordMessage(compAccrued, compDistributed, receiver, transactio
 
   // handle case for infinity % (no comp accrued before)
   if (compAccrued.isEqualTo(0) || compDistributed.isEqualTo(0)) {
-    return `${etherscanLink} 🌊 **${receiverFormatted}** previously had no COMP accrued and was just distributed COMP tokens`;
+    return `${etherscanLink} 🌊 **${receiverFormatted}** previously had no **COMP** accrued and was just distributed **COMP** tokens`;
   }
 
   // % disctribution % is calculated by compDistributed / compAccrued * 100
@@ -32,7 +32,7 @@ function createDiscordMessage(compAccrued, compDistributed, receiver, transactio
   let percentageMore = compDistributed.div(compAccrued).times(100).toString();
   percentageMore = internationalNumberFormat.format(percentageMore);
 
-  return `${etherscanLink} 🌊 **${percentageMore}%** more COMP distributed to **${receiverFormatted}** than expected`;
+  return `${etherscanLink} 🌊 **${percentageMore}%** more **COMP** distributed to **${receiverFormatted}** than expected`;
 }
 
 // post to discord

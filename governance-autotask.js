@@ -1,4 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+// agentID - 0xc6c224fb57f6bf4c14b88afc1b3e8ec44522363abb740d3d19915837bc57d605
 const axios = require('axios');
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';

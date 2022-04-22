@@ -12,7 +12,7 @@ function createDiscordMessage(borrowerAddress, governanceEvent, transactionHash)
   // // construct the Etherscan transaction link
   const etherscanLink = `[TX](<https://etherscan.io/tx/${transactionHash}>)`;
 
-  return `${etherscanLink} 💸 **${borrowerFormatted}** has enough COMP tokens to pass min threshold for governance event **${governanceEvent}**`;
+  return `${etherscanLink} 💸 **${borrowerFormatted}** has enough **COMP** tokens to pass min threshold for the governance event: **${governanceEvent}**`;
 }
 
 // post to discord

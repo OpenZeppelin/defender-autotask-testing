@@ -10,7 +10,7 @@ function createDiscordMessage(cTokenSymbol, transactionHash) {
   // // construct the Etherscan transaction link
   const etherscanLink = `[TX](<https://etherscan.io/tx/${transactionHash}>)`;
 
-  return `${etherscanLink} 🆙 Underlying asset for the ${cTokenSymbol} cToken contract was upgraded`;
+  return `${etherscanLink} 🆙 Underlying asset for the **${cTokenSymbol}** cToken contract was upgraded`;
 }
 
 // post to discord
