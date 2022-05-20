@@ -26,7 +26,7 @@ const { handler } = require('./autotask');
 
 const fortaApiEndpoint = 'https://api.forta.network/graphql';
 
-async function getFortaAlerts(agentId, startBlockNumber, endBlockNumber) {
+async function getFortaAlerts(botId, startBlockNumber, endBlockNumber) {
   const headers = {
     'content-type': 'application/json',
   };
@@ -53,7 +53,7 @@ async function getFortaAlerts(agentId, startBlockNumber, endBlockNumber) {
             severity
             source {
                 transactionHash
-                agent {
+                bot {
                     id
                 }
                 block {
@@ -68,7 +68,7 @@ async function getFortaAlerts(agentId, startBlockNumber, endBlockNumber) {
     variables: {
       input: {
         first: 100,
-        agents: [agentId],
+        bots: [botId],
         blockNumberRange: {
           startBlockNumber,
           endBlockNumber,
@@ -96,16 +96,16 @@ async function getFortaAlerts(agentId, startBlockNumber, endBlockNumber) {
   return alerts;
 }
 
-async function createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumber) {
-  const alerts = await getFortaAlerts(agentId, startBlockNumber, endBlockNumber);
+async function createFortaSentinelEvents(botId, startBlockNumber, endBlockNumber) {
+  const alerts = await getFortaAlerts(botId, startBlockNumber, endBlockNumber);
   const autotaskEvents = alerts.map((alert) => {
     // augment the alert Object with additional fields
     // admittedly, there is some hand-waving here because we have to mock some of the Sentinel
     // fields that don't originate from the Forta Public API
     // e.g. We have to specify the alertId in the Sentinel to perform filtering on what we get from
-    // the Forta Agent in the first place.
+    // the Forta Bot in the first place.
     /* eslint-disable no-param-reassign */
-    alert.source.agent.name = 'N/A';
+    alert.source.bot.name = 'N/A';
     alert.source.block.chain_id = alert.source.block.chainId;
     alert.source.tx_hash = alert.source.transactionHash;
     alert.alertType = 'TX';
@@ -132,7 +132,7 @@ async function createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumb
       id: '8fe3d50b-9b52-44ff-b3fd-a304c66e1e56',
       name: 'Sentinel Name Placeholder',
       addresses: [],
-      agents: [agentId],
+      agents: [botId],
       network: 'mainnet',
       chainId: 1,
     };
@@ -145,7 +145,7 @@ async function createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumb
       secrets,
       request: {
         body: {
-          hash: alert.hash, // forta Agent hash
+          hash: alert.hash, // Forta Bot hash
           alert,
           matchReasons,
           sentinel,
@@ -161,10 +161,10 @@ async function createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumb
 
 it('Runs autotask against blocks in configuration file', async () => {
   // get the development configuration values
-  const { agentId, startBlockNumber, endBlockNumber } = config;
+  const { botId, startBlockNumber, endBlockNumber } = config;
 
-  // grab Forta Agent alerts from the Forta Public API and create autotaskEvents
-  const autotaskEvents = await createFortaSentinelEvents(agentId, startBlockNumber, endBlockNumber);
+  // grab Forta Bot alerts from the Forta Public API and create autotaskEvents
+  const autotaskEvents = await createFortaSentinelEvents(botId, startBlockNumber, endBlockNumber);
 
   // run the autotask on the events
   const promises = autotaskEvents.map((autotaskEvent) => handler(autotaskEvent));

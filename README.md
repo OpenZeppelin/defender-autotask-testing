@@ -24,7 +24,7 @@ The use of `describe` and `it` is currently only necessary because we are using 
 ```
 {
   "jsonRpcUrl": "https://your.preferred.json.rpc.endpoint/with/api-key",
-  "agentId": "0xFORTAAGENTIDHERE",
+  "botId": "0xFORTABOTIDHERE",
   "startBlockNumber": <integer_for_starting_block_number>,
   "endBlockNumber": <integer_for_ending_block_number>
 }
